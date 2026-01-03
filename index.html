@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta
+            content="no-cache, no-store, must-revalidate"
+            http-equiv="Cache-Control"
+    />
+    <meta content="no-cache" http-equiv="Pragma"/>
+    <meta content="0" http-equiv="Expires"/>
+    <link href="/gateway/assets/NASS.png" rel="icon" type="image/svg+xml">
+    <!-- Link to the external CSS file -->
+    <link href="PGW-v2/style.css" rel="stylesheet" type="text/css">
+    <!-- Load the config file first so window.ENV exists -->
+    <script src="config.js"></script>
+    <title data-translate="title">NASS E-Payment Gateway</title>
+</head>
+
+<body>
+<!-- LANGUAGE TOGGLE -->
+<div class="language-container">
+    <div class="lang-icon">
+        <img alt="Globe icon" id="lang-icon" src="assets/globe-icon.png">
+    </div>
+    <div class="language-selector">
+        <button class="lang-btn active" data-lang="en">EN</button>
+        <button class="lang-btn" data-lang="ar">AR</button>
+        <button class="lang-btn" data-lang="ku">KU</button>
+    </div>
+</div>
+
+<!-- GATEWAY CONTAINER -->
+<div class="container">
+    <!--  HEADER  -->
+    <div class="header">
+        <img alt="NASS E-Payment Logo" src="assets/NASS-logo.svg">
+        <img alt="Brand Logo" id="brandLogoBtn" src="" style="display: none;">
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Payment Header -->
+        <div class="payment-header">
+            <div class="logo-section" data-translate="e-payment">
+                E-Payment
+            </div>
+            <div class="timer">
+                <!--   TODO: handle the expiration time  -->
+                <!--   <span id="countdown">24d 13h 27m 12s</span> -->
+            </div>
+        </div>
+
+        <div class="payment-section">
+            <!-- Order Summary -->
+            <div class="summary-box">
+                <div class="summary-label">[Order Description]</div>
+                <div class="summary-amount" id="amount-display">IQD 189,750</div>
+                <div class="summary-order">#ORD-11223344</div>
+            </div>
+
+            <!-- LINE SEPARATOR -->
+            <div class="dashed-line"></div>
+
+            <!-- Payment Form -->
+            <div class="payment-form">
+                <!-- Error Alert -->
+                <div class="error-alert" id="error-alert">
+                    <div class="error-title" data-translate="payment-failed">Payment Failed</div>
+                    <div class="error-message" data-translate="card-expired" id="error-message">
+                        Your card has been expired
+                    </div>
+                </div>
+
+                <form action="https://3ds.nass.iq/cgi-bin/cgi_link" class="form" id="payment-form" method="POST">
+                    <!-- Card Number -->
+                    <div class="form-group">
+                        <label class="form-label" data-translate="card-number" for="card-number" required>
+                            Credit or Debit Card
+                        </label>
+                        <input
+                                class="form-input"
+                                id="card-number"
+                                maxlength="20"
+                                name="CARD"
+                                placeholder="XXXX XXXX XXXX XXXX"
+                                required
+                                type="text"
+                                value=""
+                        >
+                        <img alt="Card" class="card-logo" id="card-logo" src="/gateway/assets/visa-master-card.svg"
+                             style="display: block;">
+                    </div>
+
+                    <!-- Expiry Date (MM/YY) -->
+                    <div class="form-group">
+                        <label class="form-label" data-translate="expiry" for="exp-month" required>Expiry</label>
+                        <div class="expiry-group">
+                            <input
+                                    class="form-input"
+                                    data-translate="placeholder-mm"
+                                    id="exp-month"
+                                    inputmode="numeric"
+                                    max="12"
+                                    maxlength="2"
+                                    min="1"
+                                    name="EXP"
+                                    oninput="this.value = this.value.slice(0, 2);"
+                                    pattern="\d{2}"
+                                    placeholder="MM"
+                                    required
+                                    type="number"
+                            >
+                            <span> / </span>
+                            <input
+                                    class="form-input"
+                                    data-translate="placeholder-yy"
+                                    id="exp-year"
+                                    inputmode="numeric"
+                                    maxlength="2"
+                                    name="EXP_YEAR"
+                                    oninput="this.value = this.value.slice(0, 2);"
+                                    pattern="\d{2}" placeholder="YY"
+                                    required
+                                    type="number"
+                            >
+                        </div>
+                    </div>
+
+                    <!-- CVC/CVV Availability & CVC/CVV-->
+                    <div class="cvv-container">
+                        <!-- CVV Availability -->
+                        <div class="form-group">
+                            <label class="form-label" data-translate="cvc-availability" for="cvv-availability" required>
+                                CVC/CVV Availability
+                            </label>
+                            <div class="cvv-group">
+                                <div class="select-wrapper">
+                                    <select class="form-select" id="cvv-availability" name="small">
+                                        <option data-translate="cvc-present" selected value="1">CVC2 is present</option>
+                                        <option data-translate="cvc-not-provided" value="0">CVC2 is not provided
+                                        </option>
+                                        <option data-translate="cvc-illegible" value="2">CVC2 is illegible</option>
+                                        <option data-translate="no-cvc" value="9">No CVC2 on card</option>
+                                    </select>
+                                    <div class="chevron-down"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- CVC/CVV -->
+                        <div class="form-group">
+                            <label class="form-label" data-translate="cvc-cvv" for="cvv" required>
+                                CVC/CVV
+                            </label>
+                            <div class="cvv-group">
+                                <input
+                                        class="form-input"
+                                        id="cvv"
+                                        inputmode="numeric"
+                                        maxlength="3"
+                                        name="CVC2"
+                                        placeholder="XXX"
+                                        required
+                                        type="password"
+                                >
+                                <img alt="Card" class="card-logo" id="cvc-logo" src="assets/cvc-logo.svg"
+                                     style="display: block;">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- THOSE ARE HIDDEN INPUTS, required for the payment gateway (ways4) don't remove it-->
+                    <input name="AMOUNT" type="hidden" value="10000100">
+                    <input name="MERCHANT" type="hidden" value="">
+                    <input name="CURRENCY" type="hidden" value="368">  <!-- IQD-->
+                    <input name="ORDER" type="hidden" value="">
+                    <input name="DESC" type="hidden" value="">
+                    <input name="TRTYPE" type="hidden" value="0">
+                    <input name="TIMESTAMP" type="hidden">
+                    <input name="NONCE" type="hidden" value="">
+                    <input name="MERCH_NAME" type="hidden">
+                    <input name="MERCH_URL" type="hidden">
+                    <input name="EMAIL" type="hidden">
+                    <input name="COUNTRY" type="hidden">
+                    <input name="MERCH_GMT" type="hidden">
+                    <input name="BACKREF" type="hidden">
+                    <input name="TERMINAL" type="hidden">
+                    <input name="P_SIGN" type="hidden">
+                    <input name="NOTIFY_URL" type="hidden">
+
+
+                    <!-- Terms -->
+                    <div class="checkbox-group">
+                        <input class="checkbox-input" id="terms" required type="checkbox" value=off>
+                        <label class="checkbox-label" for="terms">
+                            <span data-translate="terms-agreement">I have read and agree to the</span>
+                            <a data-translate="terms-conditions" href="#" id="terms-link" target="_blank">terms and
+                                conditions</a>
+                        </label>
+                    </div>
+
+                    <!-- LINE SEPARATOR -->
+                    <div class="dashed-line"></div>
+
+                    <!-- Buttons -->
+                    <div class="button-group">
+                        <button class="btn btn-cancel" data-translate="cancel" onclick="resetForm()" type="button">
+                            Cancel
+                        </button>
+                        <button class="btn btn-pay" data-translate="pay-button" disabled id="pay-button"
+                                type="submit">
+                            Pay Now
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="footer">
+        <div class="security-badges">
+            <div class="badge">
+                <img alt="Verified by Visa" src="assets/visa-verify.png">
+            </div>
+            <div class="badge">
+                <img alt="PCI DSS Compliant" src="assets/pci.png">
+            </div>
+            <div class="badge">
+                <img alt="Mastercard SecureCode" src="assets/mastercard-secure-code.png">
+            </div>
+        </div>
+        <div class="powered-by">
+            <span data-translate="powered-by">POWERED BY</span>
+            <img alt="NASS E-Payment Logo" src="assets/NASS-logo-footer.svg">
+        </div>
+    </div>
+</div>
+
+<!-- Link to the external JavaScript file -->
+<script src="helper/localization.js"></script>
+<script src="helper/checkVersion.js"></script>
+<script src="PGW-v2/script.js"></script>
+
+</body>
+</html>
